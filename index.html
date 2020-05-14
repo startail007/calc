@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500&family=Open+Sans:ital,wght@1,800&display=swap"
+      rel="stylesheet"
+    />
+    <title>計算機</title>
+    <style>
+      body {
+        display: flex;
+        margin: 0;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #bbb;
+      }
+      .calc {
+        display: grid;
+        width: 300px;
+        height: 400px;
+        background-color: #ddd;
+        /*grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr;*/
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: 1fr 5px repeat(5, 1fr);
+        /*grid-auto-flow: column;*/
+        /*grid-column-gap: 2px;*/
+        grid-gap: 5px;
+        grid-template-areas:
+          "display display display display"
+          "line line line line"
+          "num7 num8 num9 div"
+          "num4 num5 num6 mul"
+          "num1 num2 num3 sub"
+          "pn num0 dot add"
+          "clear delete equal equal";
+        /*justify-items: center;
+        align-items: center;*/
+        padding: 10px;
+        box-sizing: border-box;
+        border: 1px solid rgb(168, 168, 168);
+        border-radius: 10px;
+        /*justify-items: center;
+        align-items: center;*/
+        box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+      }
+      .calc .button {
+        background-color: rgb(241, 241, 241);
+        border-radius: 10px;
+        border: 1px solid rgb(168, 168, 168);
+        text-align: center;
+        text-align: center;
+        /*padding: 10px 0px;*/
+        /*align-self: center;*/
+        -webkit-user-select: none;
+        user-select: none;
+        /*font-size: 1rem;*/
+        font-family: "Noto Sans TC", sans-serif;
+        font-size: 18px;
+      }
+      .calc .button:focus {
+        outline: none;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        border-color: rgb(32, 159, 233);
+        box-shadow: 0px 0px 2px rgb(32, 159, 233);
+      }
+      .calc .button:hover {
+        background-color: rgb(248, 248, 248);
+        cursor: pointer;
+      }
+
+      .textFormula {
+        font-size: 12px;
+        box-sizing: border-box;
+        font-family: "Noto Sans TC", sans-serif;
+        text-align: right;
+        border: 0;
+        background-color: transparent;
+      }
+      .textFormula:focus {
+        outline: none;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+      }
+      .text {
+        font-size: 18px;
+        box-sizing: border-box;
+        font-family: "Noto Sans TC", sans-serif;
+        text-align: right;
+        border: 0;
+        background-color: transparent;
+      }
+      .text:focus {
+        outline: none;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+      }
+      .display {
+        display: grid;
+        grid-area: display;
+        grid-gap: 5px;
+        border-radius: 10px;
+        border: 1px solid rgb(168, 168, 168);
+        background-color: #fff;
+        padding: 5px;
+      }
+      .line {
+        grid-area: line;
+      }
+      .num0 {
+        grid-area: num0;
+      }
+      .num1 {
+        grid-area: num1;
+      }
+      .num2 {
+        grid-area: num2;
+      }
+      .num3 {
+        grid-area: num3;
+      }
+      .num4 {
+        grid-area: num4;
+      }
+      .num5 {
+        grid-area: num5;
+      }
+      .num6 {
+        grid-area: num6;
+      }
+      .num7 {
+        grid-area: num7;
+      }
+      .num8 {
+        grid-area: num8;
+      }
+      .num9 {
+        grid-area: num9;
+      }
+      .divide {
+        grid-area: div;
+      }
+      .multiply {
+        grid-area: mul;
+      }
+      .subtract {
+        grid-area: sub;
+      }
+      .add {
+        grid-area: add;
+      }
+      .clear {
+        grid-area: clear;
+      }
+      .equal {
+        grid-area: equal;
+      }
+      .delete {
+        grid-area: delete;
+      }
+      .pn {
+        grid-area: pn;
+      }
+    </style>
+
+    <script>
+      /*var a = [];
+      var b = "";
+      function button_click(val) {
+
+      }*/
+      (function () {
+        window.onload = function () {
+          var app = new Vue({
+            el: "#calcAPP",
+            data() {
+              return {
+                bool: false,
+                text: "",
+                textFormula: "",
+                list: [],
+                sum: "",
+                formula: "",
+              };
+            },
+            mounted() {
+              //console.log(this.formatFloat("−1e−10"));
+            },
+            computed: {},
+            methods: {
+              formatFloat: function (value) {
+                var regex0 = /\−*\d+\.*\d*e\−*\d+/g;
+                if (regex0.test(value)) {
+                  var s = value.match(regex0)[0];
+                  var m = s.split(/e/g);
+                  var number = parseFloat(m[0].replace("−", "-"));
+                  var negative = number < 0;
+                  number = Math.abs(number);
+                  var power = parseInt(m[1].replace("−", "-"));
+                  if (power === 0) {
+                    return (negative ? "−" : "") + number.toString();
+                  } else {
+                    var zero = Math.abs(power);
+                    var number_power = number.toString().length - (/\./g.test(number.toString()) ? 2 : 1);
+                    number = number * Math.pow(10, number_power);
+                    if (power > 0) {
+                      return (negative ? "−" : "") + number + "0".repeat(zero - number_power);
+                    } else if (power < 0) {
+                      return (
+                        (negative ? "−" : "") + (zero - 1 >= 0 ? "0." : "") + "0".repeat(Math.max(zero - 1, 0)) + number
+                      );
+                    }
+                  }
+                }
+                return value;
+              },
+              formulaFormat: function (formula) {
+                var temp_formula = "";
+                this.formulaForEach(
+                  formula,
+                  function (type, s0) {
+                    if (type === "operation") {
+                      temp_formula += s0;
+                    } else if (type === "number") {
+                      if (s0 === "E") {
+                        temp_formula += "Error";
+                      } else if (s0 === "I") {
+                        temp_formula += "Infinity";
+                      } else {
+                        temp_formula += this.format1(s0);
+                      }
+                    }
+                  },
+                  this
+                );
+                return temp_formula;
+              },
+              format1: function (n) {
+                var s = n.toString();
+                var index = s.indexOf(".");
+                index = index === -1 ? s.length : index;
+                return s.replace(/./g, function (c, i, a) {
+                  return (i > 0 && i < index && (index - i) % 3 === 0 ? "," : "") + c;
+                });
+              },
+              formulaForEach: function (formula, fun, self) {
+                var regex0 = /^[\÷\×\+\−]{1,2}/g;
+                var regex1 = /(^E)|(^I)|(^\d+\.*\d*)|(^\.\d*)/g;
+
+                var temp_formula = formula;
+                var s0;
+                while (temp_formula.length) {
+                  regex0.lastIndex = 0;
+                  regex1.lastIndex = 0;
+                  s0 = temp_formula.match(regex0);
+                  if (s0) {
+                    temp_formula = temp_formula.replace(regex0, ""); //將符號從後面取代空字串
+                    fun.call(self, "operation", s0[0].toString());
+                  }
+                  s0 = temp_formula.match(regex1);
+                  if (s0) {
+                    temp_formula = temp_formula.replace(regex1, ""); //將數值從後面取代空字串
+                    fun.call(self, "number", s0[0].toString());
+                  }
+                }
+              },
+              formulaSum: function (formula) {
+                var regex0 = /E/g;
+
+                if (regex0.test(formula)) {
+                  return "E";
+                }
+
+                var regex1 = /\−/g;
+
+                var sum = 0;
+                var temp_sum = 0;
+                var negative = false;
+                var operation = "";
+                this.formulaForEach(formula, function (type, s0) {
+                  if (type === "operation") {
+                    regex1.lastIndex = 0;
+                    negative = regex1.test(s0); //取得正數或負數
+                    operation = s0 ? s0.charAt(0) : ""; //取得運算符號
+                  } else if (type === "number") {
+                    var number = s0;
+                    if (number === ".") {
+                      number = "0";
+                    } else if (number === "I") {
+                      number = "Infinity";
+                    } else if (number === "E") {
+                      number = "NaN";
+                    }
+                    number = (negative ? -1 : 1) * parseFloat(number);
+                    //取得數值
+                    if (operation === "×") {
+                      temp_sum *= number;
+                    } else if (operation === "÷") {
+                      temp_sum /= number;
+                    } else {
+                      sum += temp_sum; //將暫存累加加入總和
+                      temp_sum = number; //放入暫存累加
+                    }
+                    //運算
+                  }
+                });
+                sum += temp_sum; //將暫存累加加入總和
+                if (isNaN(sum)) {
+                  return "E";
+                }
+                if (isFinite(sum)) {
+                  sum = parseFloat(sum.toPrecision(12));
+                }
+                sum = sum
+                  .toString()
+                  .replace(/\-/g, "−")
+                  .replace(/Infinity/g, "I");
+                return sum;
+              },
+              input_click: function (val) {
+                if (this.sum === "E") {
+                  this.formula = "";
+                  this.sum = "";
+                }
+                if (val === "÷" || val === "×" || val === "+" || val === "−") {
+                  if (this.sum !== "") {
+                    this.formula = this.sum;
+                    this.sum = "";
+                  }
+                  var formula = this.formula + val;
+                  var regex0 = /[\÷\×]\−$/g;
+                  var regex1 = /[\÷\×\+\−]+([\÷\×\+\−])$/g;
+                  var regex2 = /^[\÷\×\+]/g;
+
+                  if (!regex0.test(formula) && regex1.test(formula)) {
+                    formula = formula.replace(regex1, "$1");
+                    //除了÷−跟×−以外 符號堆疊取最後的符號
+                  }
+
+                  if (regex2.test(formula)) {
+                    formula = formula.replace(regex2, "");
+                    //開頭有÷×+取代為空字串
+                  }
+                  this.formula = formula;
+                  this.text = this.formulaFormat(this.formula);
+                } else if (val === "=") {
+                  var formula = this.formula;
+
+                  if (this.sum !== "") {
+                    var regex0 = /[\÷\×\+\−]{1,2}$/g;
+                    var regex1 = /(\d+\.*\d*$)|(\.\d*$)/g;
+                    var c = 0;
+                    s0 = formula.match(regex1);
+                    if (s0) {
+                      formula = formula.replace(regex1, "");
+                      c++;
+                    }
+                    s0 = formula.match(regex0);
+                    if (s0) {
+                      formula = formula.replace(regex0, "");
+                      c++;
+                    }
+                    if (c === 2) {
+                      this.formula = this.sum + this.formula.slice(formula.length, this.formula.length);
+                    } else {
+                      this.formula = this.sum;
+                    }
+                  }
+                  this.textFormula = this.formulaFormat(this.formula);
+                  this.sum = this.formatFloat(this.formulaSum(this.formula));
+                  //console.log(this.sum, this.formatFloat(this.sum));
+                  this.text = this.formulaFormat(this.sum);
+                  //this.text = this.sum;
+                } else if (val === "C") {
+                  this.formula = "";
+                  this.sum = "";
+                  this.textFormula = "";
+                  this.text = "";
+                } else if (val === "DEL") {
+                  if (this.sum !== "") {
+                    this.formula = this.sum;
+                    this.sum = "";
+                  }
+                  this.formula = this.formula.slice(0, this.formula.length - 1);
+                  this.text = this.formulaFormat(this.formula);
+                } else if (val === "PN") {
+                  if (this.sum !== "") {
+                    this.formula = this.sum;
+                    this.sum = "";
+                  }
+                  var formula = this.formula;
+
+                  var regex0 = /[\÷\×\+\−]{1,2}$/g;
+                  var sliceIndex = formula.search(regex0);
+                  sliceIndex = sliceIndex !== -1 ? sliceIndex : formula.length;
+                  var formula0 = formula.slice(0, sliceIndex);
+                  var formula1 = formula.slice(sliceIndex, formula.length);
+                  //假設最後是符號 把符號分割出來
+
+                  var regex1 = /([\÷\×]*)\−([\d\.I]+)$/g;
+                  var regex2 = /([\÷\×]*)\+*([\d\.I]+)$/g;
+                  var regex3 = /([\÷\×]|^)\+([\d\.I]+)$/g;
+
+                  if (regex1.test(formula0)) {
+                    formula0 = formula0.replace(regex1, "$1+$2");
+                    //將負號取代為正號
+
+                    if (regex3.test(formula0)) {
+                      formula0 = formula0.replace(regex3, "$1$2");
+                      //處理符號後或開頭為"正號+數字"的正號去掉
+                    }
+                  } else {
+                    if (regex2.test(formula0)) {
+                      formula0 = formula0.replace(regex2, "$1−$2");
+                      //將正號取代為負號
+                    }
+                  }
+                  formula = formula0 + formula1;
+
+                  this.formula = formula;
+                  this.text = this.formulaFormat(this.formula);
+                } else {
+                  if (this.sum !== "") {
+                    this.formula = "";
+                    this.sum = "";
+                  }
+                  var formula = this.formula + val;
+
+                  var regex0 = /([\÷\×\+\−]+|^)0(\d+)$/g;
+                  var regex1 = /(\d*\.\d*)\.$/g;
+                  var regex2 = /([\÷\×\+\−]+|^)I(\d+)$/g;
+
+                  if (regex0.test(formula)) {
+                    formula = formula.replace(regex0, "$1$2");
+                    //處理符號後或開頭為"0+數字"的0去掉
+                  }
+                  if (regex1.test(formula)) {
+                    formula = formula.replace(regex1, "$1");
+                    //去掉多的小數點
+                  }
+                  if (regex2.test(formula)) {
+                    formula = formula.replace(regex2, "$1$2");
+                    //處理無限大的符號
+                  }
+
+                  this.formula = formula;
+                  this.text = this.formulaFormat(this.formula);
+                }
+              },
+            },
+          });
+        };
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="calcAPP" class="calc">
+      <div class="display">
+        <input class="textFormula" v-model="textFormula" readonly />
+        <input class="text" v-model="text" readonly />
+      </div>
+      <div class="line"></div>
+      <input type="button" class="button num0" @click="input_click(0)" value="0" />
+      <input type="button" class="button num1" @click="input_click(1)" value="1" />
+      <input type="button" class="button num2" @click="input_click(2)" value="2" />
+      <input type="button" class="button num3" @click="input_click(3)" value="3" />
+      <input type="button" class="button num4" @click="input_click(4)" value="4" />
+      <input type="button" class="button num5" @click="input_click(5)" value="5" />
+      <input type="button" class="button num6" @click="input_click(6)" value="6" />
+      <input type="button" class="button num7" @click="input_click(7)" value="7" />
+      <input type="button" class="button num8" @click="input_click(8)" value="8" />
+      <input type="button" class="button num9" @click="input_click(9)" value="9" />
+      <input type="button" class="button dot" @click="input_click('.')" value="." />
+      <input type="button" class="button divide" @click="input_click('÷')" value="÷" />
+      <input type="button" class="button multiply" @click="input_click('×')" value="×" />
+      <input type="button" class="button subtract" @click="input_click('−')" value="−" />
+      <input type="button" class="button add" @click="input_click('+')" value="+" />
+      <input type="button" class="button equal" @click="input_click('=')" value="=" />
+      <input type="button" class="button clear" @click="input_click('C')" value="C" />
+      <input type="button" class="button delete" @click="input_click('DEL')" value="DEL" />
+      <input type="button" class="button pn" @click="input_click('PN')" value="+/−" />
+    </div>
+  </body>
+</html>
