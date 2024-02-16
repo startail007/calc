@@ -4,4 +4,4 @@
 ##### 2.使用正規表來做輸入的刪減取代篩選
 ##### 3.將數值做格式化 1000 -> 1,000
 ### DEMO
-[線上觀看](https://virtools.github.io/calc/)
+[線上觀看](https://startail007.github.io/calc/)
